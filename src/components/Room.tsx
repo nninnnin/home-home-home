@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { Mesh } from 'three'
+import Bird from './Bird'
 
 export default function Room() {
   return (
@@ -30,6 +31,9 @@ export default function Room() {
 
       {/* Frame */}
       <Frame position={[-2.9, 1.8, -0.5]} />
+
+      {/* Bird */}
+      <Bird position={[0, 0, 0]} />
 
       {/* Window light */}
       <rectAreaLight
