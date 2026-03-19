@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react'
-import type { CameraBehavior } from '../lib/cameraBehavior'
+import type { CameraBehavior } from '../../lib/cameraBehavior'
 
 const MIN_FOV = 20
 const MAX_FOV = 90

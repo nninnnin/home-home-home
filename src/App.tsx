@@ -1,13 +1,13 @@
 import { useState, useRef, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
-import Room from './components/Room'
-import { CameraController } from './components/CameraController'
-import { CameraStatePersist, loadCameraState } from './components/CameraStatePersist'
-import { SaveToast } from './components/SaveToast'
-import { panBehavior, PanButton } from './behaviors/pan.tsx'
-import { rotateYBehavior, RotateYButton } from './behaviors/rotateY.tsx'
-import { makeZoomBehavior, ZoomControlsUI } from './behaviors/zoom.tsx'
+import Room from './scene/Room'
+import { CameraController } from './tools/CameraController'
+import { CameraStatePersist, loadCameraState } from './tools/CameraStatePersist'
+import { SaveToast } from './tools/SaveToast'
+import { panBehavior, PanButton } from './tools/behaviors/pan.tsx'
+import { rotateYBehavior, RotateYButton } from './tools/behaviors/rotateY.tsx'
+import { makeZoomBehavior, ZoomControlsUI } from './tools/behaviors/zoom.tsx'
 
 const saved = loadCameraState()
 const initialFov = saved?.fov ?? 50

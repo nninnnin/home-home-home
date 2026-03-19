@@ -1,42 +1,36 @@
 import { useRef, useCallback, useEffect } from 'react'
 import { Vector3 } from 'three'
-import type { CameraBehavior } from '../lib/cameraBehavior'
+import type { CameraBehavior } from '../../lib/cameraBehavior'
 
-const PAN_SPEED = 0.012
+const ROTATE_SPEED = 0.005
 
-const state = { dx: 0, dy: 0 }
+const state = { dx: 0 }
 
-export const panBehavior: CameraBehavior = {
-  id: 'pan',
+export const rotateYBehavior: CameraBehavior = {
+  id: 'rotateY',
   onFrame: ({ camera, controls }) => {
-    if (state.dx === 0 && state.dy === 0) return
+    if (state.dx === 0) return
 
-    const right = new Vector3()
-    const up = new Vector3()
-    camera.matrix.extractBasis(right, up, new Vector3())
-
-    const pan = new Vector3()
-      .addScaledVector(right, -state.dx * PAN_SPEED)
-      .addScaledVector(up,     state.dy * PAN_SPEED)
-
-    camera.position.add(pan)
-    controls?.target?.add(pan)
+    const target: Vector3 = controls?.target ?? new Vector3()
+    const offset = camera.position.clone().sub(target)
+    offset.applyAxisAngle(new Vector3(0, 1, 0), -state.dx * ROTATE_SPEED)
+    camera.position.copy(target).add(offset)
+    camera.lookAt(target)
 
     state.dx = 0
-    state.dy = 0
   },
 }
 
-export function PanButton() {
+export function RotateYButton() {
   const btnRef = useRef<HTMLDivElement>(null)
   const active = useRef(false)
-  const prev = useRef({ x: 0, y: 0 })
+  const prev = useRef(0)
 
   useEffect(() => {
     const reset = () => {
       if (!active.current) return
       active.current = false
-      if (btnRef.current) btnRef.current.style.cursor = 'grab'
+      if (btnRef.current) btnRef.current.style.cursor = 'ew-resize'
     }
     window.addEventListener('pointerup', reset)
     return () => window.removeEventListener('pointerup', reset)
@@ -45,20 +39,19 @@ export function PanButton() {
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
     active.current = true
-    prev.current = { x: e.clientX, y: e.clientY }
+    prev.current = e.clientX
     ;(e.currentTarget as HTMLElement).style.cursor = 'grabbing'
   }, [])
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!active.current) return
-    state.dx += e.clientX - prev.current.x
-    state.dy += e.clientY - prev.current.y
-    prev.current = { x: e.clientX, y: e.clientY }
+    state.dx += e.clientX - prev.current
+    prev.current = e.clientX
   }, [])
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
     active.current = false
-    ;(e.currentTarget as HTMLElement).style.cursor = 'grab'
+    ;(e.currentTarget as HTMLElement).style.cursor = 'ew-resize'
   }, [])
 
   return (
@@ -68,18 +61,19 @@ export function PanButton() {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
-      title="Pan"
+      title="Rotate Y"
       style={{
         position: 'fixed',
-        top: 16,
-        right: 180,
+        top: '50%',
+        right: 104,
+        transform: 'translateY(-50%)',
         width: 36,
         height: 36,
         borderRadius: '50%',
         background: 'rgba(0,0,0,0.45)',
         backdropFilter: 'blur(8px)',
         border: '1.5px solid rgba(255,255,255,0.18)',
-        cursor: 'grab',
+        cursor: 'ew-resize',
         touchAction: 'none',
         zIndex: 100,
         display: 'flex',
@@ -87,9 +81,9 @@ export function PanButton() {
         justifyContent: 'center',
       }}
     >
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 1v14M1 8h14M8 1L5 4M8 1l3 3M8 15l-3-3M8 15l3-3M1 8l3-3M1 8l3 3M15 8l-3-3M15 8l-3 3"
-          stroke="rgba(255,255,255,0.8)" strokeWidth="1.4" strokeLinecap="round"/>
+      <svg width="18" height="10" viewBox="0 0 18 10" fill="none">
+        <path d="M1 5h16M1 5l3-3M1 5l3 3M17 5l-3-3M17 5l-3 3"
+          stroke="rgba(255,255,255,0.8)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </div>
   )
